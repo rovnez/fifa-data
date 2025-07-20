@@ -11,5 +11,15 @@
         <property name="foreign_keys" value="true" />
       </driver-properties>
     </data-source>
+    <data-source source="LOCAL" name="fifa-full.db" single-connection="true" uuid="eefffbbd-81f4-49cb-98ad-2956aa54e9b9">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/data_store/fifa-full.db</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+      <driver-properties>
+        <property name="foreign_keys" value="true" />
+      </driver-properties>
+    </data-source>
   </component>
 </project>
