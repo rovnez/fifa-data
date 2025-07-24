@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/src/fifa_data/POPULATE_SQLITE.sql" dialect="SQLite" />
-    <file url="file://$PROJECT_DIR$/src/fifa_data/bulk_inserts/dump_fifa_23_players.py" dialect="GenericSQL" />
-    <file url="file://$PROJECT_DIR$/src/fifa_data/sql/create_base_tables.sql" dialect="SQLite" />
+    <file url="file://$PROJECT_DIR$/src/dev_fifa_data/POPULATE_SQLITE.sql" dialect="SQLite" />
+    <file url="file://$PROJECT_DIR$/src/dev_fifa_data/bulk_inserts/dump_fifa_23_players.py" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/dev_fifa_data/sql/create_base_tables.sql" dialect="SQLite" />
     <file url="PROJECT" dialect="SQLite" />
   </component>
 </project>

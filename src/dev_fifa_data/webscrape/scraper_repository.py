@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import time
 from curl_cffi import requests as cf_requests
 
-from fifa_data.webscrape.config import HTML_SAMPLES_DIR
+from dev_fifa_data.webscrape.config import HTML_SAMPLES_DIR
 
 SOME_URL = "https://sofifa.com/player/158023/lionel-messi/250044/"
 
