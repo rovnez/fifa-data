@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<link as="style" href="https://cdn.whatismybrowser.com/prod-website/static/main/css/site.min.css?time=1750905720" rel="stylesheet preload prefetch" type="text/css"/>
+<title>What HTTP Headers is my browser sending?</title>
+<meta content="Every time your web browser sends a request it includes a series of HTTP headers; this page tells you which ones you are sending." name="description">
+<!-- Mobile meta tags -->
+<meta content="width=device-width, initial-scale=1.0, user-scalable=yes" name="viewport"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="true" name="HandheldFriendly"/>
+<meta content="telephone=no" name="format-detection"/>
+<!-- Open Graph meta tags -->
+<meta content="WhatIsMyBrowser.com" property="og:site_name"/>
+<meta content="Website" property="og:type"/>
+<meta content="What HTTP Headers is my browser sending?" property="og:title"/>
+<meta content="https://cdn.whatismybrowser.com/prod-website/static/main/images/logo/open-graph-homepage.png" property="og:image"/>
+<meta content="Every time your web browser sends a request it includes a series of HTTP headers; this page tells you which ones you are sending." property="og:description"/>
+<meta content="https://www.whatismybrowser.com/detect/what-http-headers-is-my-browser-sending/" property="og:url"/>
+<meta content="Technology" property="article:section"/>
+<meta content="2015-07-31T00:00:00" property="article:published_time"/>
+<meta content="2024-06-25T00:00:00" property="article:modified_time"/>
+<!-- Twitter -->
+<meta content="summary" name="twitter:card"/>
+<meta content="@whatismybrowser" name="twitter:site"/>
+<meta content="@whatismybrowser" name="twitter:creator"/>
+<meta content="What HTTP Headers is my browser sending?" name="twitter:title"/>
+<meta content="Every time your web browser sends a request it includes a series of HTTP headers; this page tells you which ones you are sending." name="twitter:description"/>
+<!-- Favicon -->
+<link href="https://cdn.whatismybrowser.com/prod-website/static/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+<link href="https://cdn.whatismybrowser.com/prod-website/static/main/images/logo/apple-touch-icon.png" rel="apple-touch-icon" sizes="152x152"/>
+<link href="https://cdn.whatismybrowser.com/prod-website/static/main/images/logo/wimb-192.png" rel="icon" sizes="192x192"/>
+<!-- Misc -->
+<meta content="none" name="msapplication-config">
+<meta content="#428bae" name="theme-color"/>
+<!-- The Canonical URL for this page -->
+<link href="https://www.whatismybrowser.com/detect/what-http-headers-is-my-browser-sending/" rel="canonical">
+<!-- The only translation -->
+<link href="https://www.whatismybrowser.com/detect/what-http-headers-is-my-browser-sending/" hreflang="en" rel="alternate"/>
+<link href="https://www.whatismybrowser.com/detect/what-http-headers-is-my-browser-sending/" hreflang="x-default" rel="alternate"/>
+<!-- Preload javascript (it's added at the end of the page) -->
+<link as="script" href="https://cdn.whatismybrowser.com/prod-website/static/main/js/site.min.js?cb=1727350264" rel="preload prefetch"/>
+<!-- Google AdSense -->
+<script async="" crossorigin="anonymous" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8548565564007782"></script>
+<!-- Structured Data - For the whole site: Organization and the Website itself -->
+<script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "WhatIsMyBrowser.com",
+                "url": "https://www.whatismybrowser.com",
+                "foundingDate": "2010-11-10",
+                "founder": {
+                    "@type": "Person",
+                    "name": "Brett Harris",
+                    "givenName": "Brett",
+                    "familyName": "Harris",
+                    "url": "https://www.whatismybrowser.com/about/team/brett-harris"
+                },
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://cdn.whatismybrowser.com/prod-website/static/main/images/logo/logo-words-blue-black-transparent.png",
+                    "width": 600,
+                    "height": 600
+                },
+                "sameAs": [
+                    "https://twitter.com/whatismybrowser",
+                    "https://github.com/whatismybrowser/"
+                ]
+            }
+        </script>
+<script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "WhatIsMyBrowser.com",
+                "url": "https://www.whatismybrowser.com",
+                "image": {
+                    "@type": "ImageObject",
+                    "url": "https://cdn.whatismybrowser.com/prod-website/static/main/images/logo/open-graph-homepage.png",
+                    "width": 600,
+                    "height": 600
+                },
+                "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "https://www.whatismybrowser.com/search/?q={search_term}",
+                    "query-input": "required name=search_term"
+                },
+                "sameAs": [
+                    "https://twitter.com/whatismybrowser",
+                    "https://github.com/whatismybrowser/"
+                ]
+            }
+        </script>
+</link></meta></meta></head>
+<body class="section_detect section_what-http-headers-is-my-browser-sending page lang-en">
+<nav aria-label="Heading and navigation" id="site">
+<div id="top-logo-and-name">
+<a aria-label="My Browser" href="/">
+<div id="top-logo"></div>
+</a>
+<div id="top-name"><a href="/"><span id="top-name-site">WhatIsMyBrowser.com</span></a></div>
+</div>
+<ul id="main-nav">
+<li class="homepage"><a href="/">My browser</a></li>
+<li class="guides"><a href="/guides/">Guides</a></li>
+<li class="detect active"><a href="/detect/">Detect my settings</a></li>
+<li class="developers-tools"><a href="/developers/tools/">Tools</a></li>
+</ul>
+</nav>
+<div id="content-base">
+<section class="section-block section-block-main-only" id="breadcrumbs">
+<div class="corset">
+<div class="content-block-main">
+<nav aria-label="Breadcrumb">
+<ol typeof="BreadcrumbList" vocab="http://schema.org/">
+<li property="itemListElement" typeof="ListItem">
+<a href="/" property="item" typeof="WebPage">
+<span property="name">
+                                            Homepage
+                                        </span>
+</a>
+<meta content="1" property="position"/>
+</li>
+<li property="itemListElement" typeof="ListItem">
+<a href="/detect/" property="item" typeof="WebPage">
+<span property="name">
+                                            Detect my settings
+                                        </span>
+</a>
+<meta content="2" property="position"/>
+</li>
+<li aria-current="page" class="current" property="itemListElement" typeof="ListItem">
+<a href="/detect/what-http-headers-is-my-browser-sending/" property="item" typeof="WebPage">
+<span property="name">
+                                            What HTTP Headers is my browser sending?
+                                        </span>
+</a>
+<meta content="3" property="position"/>
+</li>
+</ol>
+</nav>
+</div>
+</div>
+</section>
+<section class="section-block section-block-main-extra">
+<div class="corset">
+<div class="content-block-main">
+<h1>What HTTP Headers is my browser sending?</h1>
+<p class="page-date page-updated-at">Updated at: Jun 25, 2024</p>
+<p>Every time your web browser opens a web page, it sends a "<em>request</em>" for that page. Part of that request includes a series of "<em>headers</em>".</p>
+<aside class="intended-audience">
+<h2>Notice - this article is for the Techies!</h2>
+<p>The information on this page is of a more technical nature, and might not be what you're after. You only need the info here if you really know what you're doing.</p>
+</aside>
+<p>Here is a list of the 7 headers your browser sent when requesting this page.</p>
+<table class="table table-striped table-data">
+<tr>
+<th>ACCEPT</th>
+<td><span class="code detected_result">*/*</span></td>
+</tr>
+<tr>
+<th>ACCEPT-ENCODING</th>
+<td><span class="code detected_result">gzip, deflate</span></td>
+</tr>
+<tr>
+<th>CONNECTION</th>
+<td><span class="code detected_result">keep-alive</span></td>
+</tr>
+<tr>
+<th>CONTENT-LENGTH</th>
+<td><span class="code detected_result"></span></td>
+</tr>
+<tr>
+<th>CONTENT-TYPE</th>
+<td><span class="code detected_result"></span></td>
+</tr>
+<tr>
+<th>HOST</th>
+<td><span class="code detected_result">www.whatismybrowser.com</span></td>
+</tr>
+<tr>
+<th>USER-AGENT</th>
+<td><span class="code detected_result">python-requests/2.32.4</span></td>
+</tr>
+</table>
+<aside class="wimb-callout small">
+<h2>We sorted your browser's HTTP headers alphabetically</h2>
+<p>If you want, you can <a href="/detect/what-http-headers-is-my-browser-sending/?sort=dont-sort">see your HTTP headers in the order your browser sent them</a>.</p>
+</aside>
+<p>These headers may vary from site to site (in particular the <em>HOST</em> and <em>COOKIE</em> headers!) depending on your settings.</p>
+<p>If you're curious and want to learn more about HTTP (a protocol which the <a href="http://wikipedia.org/wiki/World_Wide_Web" rel="noopener" target="_blank">World Wide Web</a> relies on) and HTTP Headers, please read the Wikipedia pages on <a href="http://wikipedia.org/wiki/Hypertext_Transfer_Protocol">Hypertext Transfer Protocol</a> and <a href="http://wikipedia.org/wiki/List_of_HTTP_header_fields">List of HTTP header fields</a>.</p>
+<h2>Curious about Client Hints? We detect them too!</h2>
+<p>Client Hints are the new approach to identifying web browsers, built to eventually replace <a href="https://developers.whatismybrowser.com/useragents/explore">user agents</a>. We're following the development and switch to using them closely. We've also built a <a href="/detect/client-hints/">tool to detect client hints</a> that your web browser is sending.</p>
+<h3>More questions?</h3>
+<p>If you have any more questions, use the <a href="/about/contact/">contact form</a> and we'll answer it and add your question here.</p>
+</div>
+<div class="content-block-extra">
+<div class="fun fun-adsense fun-responsive">
+<div class="fun-inner">
+<!-- WIMB: Extra A -->
+<ins class="adsbygoogle" data-ad-client="ca-pub-8548565564007782" data-ad-format="auto" data-ad-slot="5510985125" data-full-width-responsive="true" style="display:block"></ins>
+<script>
+                                (adsbygoogle = window.adsbygoogle || []).push({});
+                                </script>
+</div>
+<div class="fun-info-footer">Ads by Google</div>
+</div>
+<section class="link-group related-articles">
+<h2><a href="/guides/how-to-update-your-browser/">Update my web browser</a></h2>
+<ul>
+<li>
+<h3><a href="/">Do I need to update my browser?</a></h3>
+<p>Find out if your browser is out of date
+
+                                            <br/><a class="read-more" href="/">Is my browser out of date?</a>
+</p>
+</li>
+<li>
+<h3><a href="/guides/how-to-update-your-browser/faq/why-should-i-update-my-web-browser">Why should I update my browser?</a></h3>
+<p>There are very good reasons to, find out here!
+
+                                            <br/><a class="read-more" href="/guides/how-to-update-your-browser/faq/why-should-i-update-my-web-browser">Why update your browser?</a>
+</p>
+</li>
+<li>
+<h3><a href="/guides/how-to-update-your-browser/faq/is-it-free-to-update-chrome">Is it free to update Chrome?</a></h3>
+<p>Find out about the cost of updating Chrome...
+
+                                            <br/><a class="read-more" href="/guides/how-to-update-your-browser/faq/is-it-free-to-update-chrome">Does Chrome cost anything?</a>
+</p>
+</li>
+</ul>
+<div class="link-group-footer">
+<a href="/guides/how-to-update-your-browser/faq/">Read more about updating your browser...</a>
+</div>
+</section>
+<section class="link-group related-articles">
+<h2><a href="/guides/">Get help with our guides</a></h2>
+<ul>
+<li>
+<h3><a href="/guides/how-to-enable-javascript/">How to enable JavaScript</a></h3>
+<p>Change your JavaScript settings
+
+                                            <br/><a class="read-more" href="/guides/how-to-enable-javascript/">Guide to enabling Javascript</a>
+</p>
+</li>
+<li>
+<h3><a href="/guides/how-to-enable-cookies/">How to enable Cookies</a></h3>
+<p>Configure your cookie settings for privacy
+
+                                            <br/><a class="read-more" href="/guides/how-to-enable-cookies/">Guide to enabling cookies</a>
+</p>
+</li>
+</ul>
+</section>
+<div class="fun fun-adsense fun-responsive">
+<div class="fun-inner">
+<!-- WIMB: Extra B -->
+<ins class="adsbygoogle" data-ad-client="ca-pub-8548565564007782" data-ad-format="auto" data-ad-slot="2818370829" data-full-width-responsive="true" style="display:block"></ins>
+<script>
+                                (adsbygoogle = window.adsbygoogle || []).push({});
+                                </script>
+</div>
+<div class="fun-info-footer">Ads by Google</div>
+</div>
+<section class="link-group related-articles">
+<h2><a href="/guides/">Related articles</a></h2>
+<ul>
+<li>
+<h3><a href="/guides/ai/web-browsers-without-ai/">Web Browsers without AI</a></h3>
+<p>Some web browsers manufacturers have started adding AI features to their browsers, others have decided not to.
+
+                                            <br/><a class="read-more" href="/guides/ai/web-browsers-without-ai/">Which web browsers don't have AI in them?</a>
+</p>
+</li>
+<li>
+<h3><a href="/guides/troubleshooting/website/cant-log-in">I can't log in to a website.</a></h3>
+<p>We've got a detailed guide to help you solve login problems
+
+                                            <br/><a class="read-more" href="/guides/troubleshooting/website/cant-log-in">How to fix website log in problems</a>
+</p>
+</li>
+<li>
+<h3><a href="/guides/how-to-enable-cookies/faq/why-do-websites-use-cookies">Why do websites use cookies?</a></h3>
+<p>Why are cookies useful? Do you need them?
+
+                                            <br/><a class="read-more" href="/guides/how-to-enable-cookies/faq/why-do-websites-use-cookies">What's the deal with cookies?</a>
+</p>
+</li>
+<li>
+<h3><a href="/guides/clear-cache-history-cookies/">Clear Cache, Cookies and History</a></h3>
+<p>How to reset your browsing history
+
+                                            <br/><a class="read-more" href="/guides/clear-cache-history-cookies/">How to reset your browser</a>
+</p>
+</li>
+<li>
+<h3><a href="/guides/how-to-try-a-different-web-browser/">Try a different web browser</a></h3>
+<p>Different web browsers have different features - try a different one to see if you prefer it.
+
+                                            <br/><a class="read-more" href="/guides/how-to-try-a-different-web-browser/">Experiment a bit!</a>
+</p>
+</li>
+<li>
+<h3><a href="https://go.nordvpn.net/aff_c?offer_id=252&amp;aff_id=8126" target="_blank">Use a VPN to hide your IP address</a></h3>
+<p>We recommend <a href="https://nordvpn.com/what-is-a-vpn/" target="_blank">NordVPN</a> to hide your IP address or to unblock websites.
+
+                                            <br/><a class="read-more" href="https://go.nordvpn.net/aff_c?offer_id=252&amp;aff_id=8126" target="_blank">Hide your IP Address</a>
+</p>
+</li>
+</ul>
+</section>
+</div>
+</div>
+</section>
+</div><!-- end of #content-base -->
+<footer aria-label="Page footer, contains various helpful links.">
+<div class="main-columns">
+<div class="col">
+<h2><a href="/guides/">Guides</a></h2>
+<ul>
+<li><a href="/guides/clear-cache-history-cookies/">Clear Cache, History and Cookies</a></li>
+<li><a href="/search/">Search whatismybrowser.com</a></li>
+<li><a href="/guides/">Guides about the Internet</a></li>
+<li><a href="/guides/how-to-update-your-browser/faq/why-should-i-update-my-web-browser">Why update my browser?</a></li>
+</ul>
+</div>
+<div class="col">
+<h2><a href="/developers/tools/">Tools</a></h2>
+<ul>
+<li><a href="/developers/tools/iframe/">Use our IFrame on your site</a></li>
+<li><a href="https://explore.whatismybrowser.com/useragents/parse/">User agent parser</a></li>
+<li><a href="/developers/tools/send-to-tech-help/">Send browser info via email</a></li>
+<li><a href="/minimum-system-requirements/">Minimum System Requirements</a></li>
+</ul>
+</div>
+<div class="col">
+<h2><a href="https://developers.whatismybrowser.com/">Developers</a></h2>
+<ul>
+<li><a href="/guides/the-latest-user-agent/">Latest user agents</a></li>
+<li><a href="https://developers.whatismybrowser.com/api/">User Agent Parsing API</a></li>
+<li><a href="https://explore.whatismybrowser.com/useragents/explore/">Explore User Agents</a></li>
+<li><a href="/faq/">Frequently Asked Questions</a></li>
+</ul>
+</div>
+<div class="col">
+<h2>Connect</h2>
+<ul>
+<li><a href="/about/">About Us</a></li>
+<li><a href="/about/contact/">Contact Us</a></li>
+<li><a href="https://status.whatismybrowser.com/">Status</a></li>
+<li><a href="/about/media/">Media Kit</a></li>
+</ul>
+</div>
+</div>
+<section class="section-block section-block-main-only section-choose-language">
+<div class="corset">
+<div class="content-block-main">
+<h2>Other languages</h2>
+<ul id="translation-options">
+<li><a href="/">What is my browser?</a></li>
+<li><a href="/fr/">Quel est mon navigateur ?</a></li>
+<li><a href="/de/">Was ist mein Browser?</a></li>
+<li><a href="/es/">¿Cual es mi navegador?</a></li>
+<li><a href="/pt/">Qual é o meu navegador?</a></li>
+<li><a href="/sk/">Aký mám prehliadač?</a></li>
+</ul>
+</div>
+</div>
+</section>
+<div class="info">
+<a href="/about/accessibility/">Accessibility Statement</a>
+<a href="/about/security/">Security Statement</a>
+</div>
+<div class="legal">
+<a href="/">WhatIsMyBrowser.com</a> © 2010 - 2025. <a href="/about/legal/">Legal</a><br/>
+</div>
+</footer>
+<!-- Values from the parse, to help the frontend detection -->
+<!-- Please don't scrape these, use the API! You'll get even more detail and you'll also help the project! -->
+<script>
+            var detection_helper_software_name_code = "python-requests-library";
+            var detection_helper_software_name = "Python Requests Library";
+
+
+        </script>
+<script>
+            var third_party_domain = "webbrowsertests.com"; // which server do third-party checks use?
+        </script>
+<script defer="" src="https://cdn.whatismybrowser.com/prod-website/static/main/js/site.min.js?cb=1727350264"></script>
+</body>
+</html>

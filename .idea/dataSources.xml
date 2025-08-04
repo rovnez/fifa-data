@@ -21,5 +21,15 @@
         <property name="foreign_keys" value="true" />
       </driver-properties>
     </data-source>
+    <data-source source="LOCAL" name="scraper.db" uuid="a1faf708-cb00-41f3-8a3e-1a7041fd7c50">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/data_store/scraper.db</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+      <driver-properties>
+        <property name="foreign_keys" value="true" />
+      </driver-properties>
+    </data-source>
   </component>
 </project>

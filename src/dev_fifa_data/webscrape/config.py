@@ -1,6 +1,6 @@
 from pathlib import Path
 
-WEBSCRAPE_BASE_DIR = "C:\\Users\\bokla\\020_Areas\\data\\fifa-data\\src\\fifa_data\\webscrape"
+WEBSCRAPE_BASE_DIR = "C:\\Users\\bokla\\020_Areas\\data\\fifa-data\\src\\dev_fifa_data\\webscrape"
 
 BASE_DIR = Path(WEBSCRAPE_BASE_DIR)
 

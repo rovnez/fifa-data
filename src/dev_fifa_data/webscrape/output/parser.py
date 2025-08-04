@@ -2,10 +2,10 @@ import re
 from bs4 import BeautifulSoup, NavigableString
 from urllib.parse import parse_qs, urlparse
 
-from fifa_data.webscrape.scraper_repository import TestScraperRepository
+from dev_fifa_data.webscrape.scraper_repository import TestScraperRepository
 
 scraper_repo = TestScraperRepository()
-html = scraper_repo.get_page_content('some_url', name='MESSI_24')
+html = scraper_repo.get_page_content('some_url', name='MESSI_23')
 
 big_soup = BeautifulSoup(html, "html.parser")
 

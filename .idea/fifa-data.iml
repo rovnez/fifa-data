@@ -10,4 +10,11 @@
     <orderEntry type="jdk" jdkName="Python 3.13 virtualenv at C:\Users\bokla\020_Areas\data\fifa-data\.venv" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
+  <component name="PackageRequirementsSettings">
+    <option name="requirementsPath" value="" />
+  </component>
+  <component name="PyDocumentationSettings">
+    <option name="format" value="GOOGLE" />
+    <option name="myDocStringFormat" value="Google" />
+  </component>
 </module>
