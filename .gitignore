@@ -252,4 +252,5 @@ http-client.private.env.json
 ### Custom
 
 data_store
+src/learning
 src/fifa_data/cache/html_dir
