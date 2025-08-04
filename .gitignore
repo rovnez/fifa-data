@@ -252,3 +252,4 @@ http-client.private.env.json
 ### Custom
 
 data_store
+src/fifa_data/cache/html_dir
