@@ -20,10 +20,10 @@ def test_e2e_player_urls():
     urls = parse_html_urls(html_str)
     session = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
-    data_writer = SqliteRepository(db_path=DB_PATH_SCRAPER, session=session)
+    data_writer = SqliteRepository(db_path=DB_PATH_SCRAPER, batch_name=session)
     data_writer.write_urls(urls)
 
-    urls = data_writer.get_urls_from_session_in_import()
+    urls = data_writer.get_urls_from_in_import()
     url = urls[0]
     base = 'https://sofifa.com/'
     html_str = fetcher.get_page_content(base + url)
@@ -40,9 +40,9 @@ def test_write_urls_sqlite():
         '/player/789/georg/990001/',
     ]
     session = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-    data_writer = SqliteRepository(db_path=DB_PATH_SCRAPER, session=session)
+    data_writer = SqliteRepository(db_path=DB_PATH_SCRAPER, batch_name=session)
     data_writer.write_urls(urls)
-    urls_from_sqlite = data_writer.get_urls_from_session_in_import()
+    urls_from_sqlite = data_writer.get_urls_from_in_import()
     assert set(urls) == set(urls_from_sqlite)
 
 
@@ -52,7 +52,7 @@ def test_parse_player_urls():
     urls = parse_html_urls(html_str)
     session = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
-    data_writer = SqliteRepository(db_path=DB_PATH_SCRAPER, session=session)
+    data_writer = SqliteRepository(db_path=DB_PATH_SCRAPER, batch_name=session)
     data_writer.write_urls(urls)
 
 

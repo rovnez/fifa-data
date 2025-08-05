@@ -1,6 +1,7 @@
 from fifa_data.config import DB_PATH_SCRAPER
 
 from fifa_data.web_scraper.repository import SqliteRepository
+from fifa_data.web_scraper.utils import create_batch_name
 
 import datetime
 
@@ -12,10 +13,10 @@ FAKE_URLS = [
 
 
 def test_write_urls_sqlite():
-    session = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-    data_writer = SqliteRepository(db_path=DB_PATH_SCRAPER, session=session)
+    batch_name = create_batch_name()
+    data_writer = SqliteRepository(db_path=DB_PATH_SCRAPER, batch_name=batch_name)
     data_writer.write_urls(FAKE_URLS)
-    urls_from_sqlite = data_writer.get_urls_from_session_in_import()
+    urls_from_sqlite = data_writer.get_urls_from_in_import()
     assert set(FAKE_URLS) == set(urls_from_sqlite)
 
 
@@ -25,8 +26,8 @@ def test_write_urls_to_core_through_import():
     Returns:
 
     """
-    session = 'TEST' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-    data_writer = SqliteRepository(db_path=DB_PATH_SCRAPER, session=session)
+    batch_name = create_batch_name()
+    data_writer = SqliteRepository(db_path=DB_PATH_SCRAPER, batch_name=batch_name)
     data_writer.write_urls(FAKE_URLS)
     data_writer.transfer_urls_from_import_to_core()
     urls = data_writer.get_urls_in_core()
@@ -35,9 +36,10 @@ def test_write_urls_to_core_through_import():
 
 def test_get_player_html_from_repository():
     player_url = "https://sofifa.com/player/188545/robert-lewandowski/250044/"
-    session = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-    repo = SqliteRepository(db_path=DB_PATH_SCRAPER, session=session)
+    batch_name = create_batch_name()
+    repo = SqliteRepository(db_path=DB_PATH_SCRAPER, batch_name=batch_name)
     html = repo.get_player_html_from_url(player_url)
     assert len
 
-test_get_player_html_from_repository()
+
+test_write_urls_to_core_through_import()

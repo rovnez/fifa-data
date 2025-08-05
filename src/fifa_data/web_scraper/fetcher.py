@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
-import requests
-import curl_cffi
+# import requests
+from curl_cffi import requests
+from curl_cffi.requests.exceptions import RequestException, HTTPError
+
+from fifa_data.web_scraper.errors import PageNotFoundError, TooManyRequestsError
 
 
 class Fetcher(ABC):
@@ -18,19 +21,16 @@ class FakeFetcher(Fetcher):
 class CurlFetcher(Fetcher):
 
     def get_page_content(self, url: str):
-        r = curl_cffi.get(url, impersonate='chrome')
-        return r.text
-
-
-class RequestFetcher(Fetcher):
-    HEADERS = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Cookie": "setting=1; hl=en-US; playerCol=ae%2Coa%2Cpt%2Cvl%2Cwg%2Ctt"
-    }
-
-    def get_page_content(self, url: str):
-        session = requests.Session()
-
-        req = session.get(url, headers=self.HEADERS)
+        try:
+            response = requests.get(url, impersonate='chrome')
+            response.raise_for_status()
+            return response.text
+        # Note: HTTPError is a subclass of RequestException
+        except HTTPError as e:
+            if e.response.status_code == 404:
+                raise PageNotFoundError(f"404 Not Found: {url}") from e
+            elif e.response.status_code == 429:
+                raise TooManyRequestsError(f"429 Too Many Requests") from e
+            raise
+        except RequestException as e:
+            raise ConnectionError(f"Request failed for {url}: {e}") from e
