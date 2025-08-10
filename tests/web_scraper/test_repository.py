@@ -42,4 +42,4 @@ def test_get_player_html_from_repository():
     assert len
 
 
-test_write_urls_to_core_through_import()
+test_write_urls_sqlite()

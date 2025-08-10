@@ -27,9 +27,7 @@ URL_BASE = "https://sofifa.com"
 URL_EXT_PLAYER_LIST = "/players?col=tt&sort=desc&offset="
 # URL_EXT_PLAYER_LIST = "/players?type=all&lg%5B0%5D=10&oal=70&offset="
 LIMIT_URLS = 500
-LIMIT_PLAYERS = 1000
-
-
+LIMIT_PLAYERS = 250
 
 
 # main function to get the urls
@@ -110,15 +108,15 @@ def parse_players(batch_name: str = None):
     if not batch_name:
         batch_name = create_batch_name()
     repo = SqliteRepository(db_path=DB_PATH_SCRAPER, batch_name=batch_name)
-    urls = repo.get_urls_in_core()
+    urls = repo.get_urls_in_core(status=1)
     for url in urls:
-        url = URL_BASE + url
         html = repo.get_player_html_from_url(url)
-        soup = bs4.BeautifulSoup(html)
-        player_parser = PlayerParser(soup)
+        player_parser = PlayerParser(url, html)
         player_parser.parse()
+        player_data = player_data = player_parser.export_player_data()
 
 
 # parse_players(batch_name='TEST2')
 # workflow_urls()
-scrape_players(save_full_html=True)
+# scrape_players(save_full_html=True)
+parse_players()

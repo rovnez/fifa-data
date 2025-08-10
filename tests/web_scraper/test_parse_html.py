@@ -68,3 +68,4 @@ def test_parse_player():
     player_parser.parse()
 
 
+test_parse_player()

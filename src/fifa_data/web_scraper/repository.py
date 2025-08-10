@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-
+from fifa_data.web_scraper.utils import parse_player_url
 import sqlite3
 
 
@@ -33,15 +33,15 @@ class SqliteRepository(Repository):
     def write_urls(self, urls: list, idx_offset: int = 0):
         params = []
         for idx, url in enumerate(urls):
-            parts = [p for p in url.split("/") if p.isdigit()]
-            params.append({
-                "idx": idx + 1 + idx_offset,
-                "url": url,
-                "batch_name": self.batch_name,
-                "player_id": parts[0],
-                "fifa_version": parts[1][:2],
-                "fifa_update": parts[1][4:],
-            })
+            player_params = parse_player_url(url)
+            player_params.update(
+                {
+                    "idx": idx + 1 + idx_offset,
+                    "url": url,
+                    "batch_name": self.batch_name,
+                }
+            )
+            params.append(player_params)
         insert_sql = """
                      insert into main.import_player_url (url, batch_name, player_id, fifa_version, fifa_update, idx)
                      values (:url, :batch_name, :player_id, :fifa_version, :fifa_update, :idx) \
@@ -66,14 +66,21 @@ class SqliteRepository(Repository):
         urls = [x[0] for x in rows]
         return urls
 
-    def get_urls_in_core(self) -> list:
+    def get_urls_in_core(self, status: int = None) -> list:
         with sqlite3.connect(f"file:/{self.db_path}", uri=True) as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "select player_url from main.player_url where player_url.status = 0",
-            )
-            rows = cursor.fetchall()
-        urls = [x[0] for x in rows]
+            # convert one column to scalar
+            conn.row_factory = lambda cursor_, row: row[0]
+
+            query = """
+                    select player_url
+                    from main.player_url
+                    """
+            params = ()
+            if status:
+                query += " WHERE status = ?"
+                params = (status,)
+            cursor = conn.execute(query, params)
+            urls = cursor.fetchall()
         return urls
 
     def transfer_urls_from_import_to_core(self):
