@@ -1,5 +1,5 @@
 from fifa_data.web_scraper.utils import load_html_from_dir
-from fifa_data.web_scraper.parse_player import PlayerParser
+from fifa_data.web_scraper.parse_player import BeautifulSoupPlayerParser
 from fifa_data.web_scraper.html_loader import FakeHtmlLoader
 from fifa_data.web_scraper.parser import parse_html_urls
 
@@ -29,7 +29,7 @@ def test_e2e_player_urls():
     html_str = fetcher.get_page_content(base + url)
 
     bs = BeautifulSoup(html_str, 'html.parser')
-    player_parser = PlayerParser(bs)
+    player_parser = BeautifulSoupPlayerParser(bs)
     player_parser.parse()
 
 
@@ -64,7 +64,7 @@ def load_html_for_test():
 def test_parse_player():
     html_file = load_html_for_test()
     bs = BeautifulSoup(html_file, 'html.parser')
-    player_parser = PlayerParser(bs)
+    player_parser = BeautifulSoupPlayerParser(bs)
     player_parser.parse()
 
 

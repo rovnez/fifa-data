@@ -1,8 +1,7 @@
-import re
-from multiprocessing.forkserver import set_forkserver_preload
+from abc import ABC, abstractmethod
 
+import re
 import bs4
-from datetime import datetime, date
 
 from fifa_data.web_scraper.utils import parse_player_url, convert_date_to_iso
 
@@ -33,7 +32,16 @@ def _safe_int(m):
     return int(m.group(1)) if m else None
 
 
-class PlayerParser:
+class PlayerParser(ABC):
+
+    @abstractmethod
+    def parse(self): ...
+
+    @abstractmethod
+    def export(self) -> dict: ...
+
+
+class BeautifulSoupPlayerParser:
     AGGREGATE_STATS = {
         'PAC': 'pace',
         'SHO': 'shooting',
@@ -41,107 +49,93 @@ class PlayerParser:
         'DRI': 'dribbling',
         'DEF': 'defending',
         'PHY': 'physic',
-        'SPD': 'goalkeeping_spped'  # This stats is relevant for goalkeepers
+        'SPD': 'goalkeeping_speed'  # This stat is only present in the radar chart!
     }
 
-    HEADERS_STATS = {
-        "Attacking", "Skill", "Movement", "Power",
-        "Mentality", "Defending", "Goalkeeping",
-    }
+    HEADERS_INFO = {'Club', 'National team', 'Player specialities', 'Profile'}
+    HEADERS_STATS = {"Attacking", "Skill", "Movement", "Power", "Mentality", "Defending", "Goalkeeping", }
+    HEADERS_SPECIAL_STATS = {"Traits", "PlayStyles"}
 
-    HEADERS_SPECIAL_STATS = {
-        "Traits", "PlayStyles",
-    }
-
-    HEADERS_INFO = {
-        'Club', 'National team', 'Player specialities', 'Profile'
-    }
+    INFO_KEYS = ['age', 'dob', 'height_cm', 'weight_kg', 'nationality_id', 'nationality_name']
+    MARKET_KEYS = ['overall', 'potential', 'value_eur', 'wage_eur']
+    PROFILE_KEYS = ['preferred_foot', 'weak_foot', 'skill_moves', 'international_reputation', 'work_rate', 'body_type', 'real_face', 'release_clause_eur']
+    CLUB_KEYS = ["league_id", "league_name", "league_level", "club_team_id", "club_name", "club_position", "club_jersey_number", "club_loaned_from",
+                 "club_joined_date", "club_contract_valid_until_year"]
+    NATIONAL_TEAM_KEYS = ["nation_team_id", "nation_position", "nation_jersey_number"]
+    POSSIBLE_POSITIONS = ['LS', 'ST', 'RS', 'LW', 'LF', 'RF', 'RW', 'LAM', 'CAM', 'RAM', 'LM', 'LCM', 'CM', 'RCM', 'RM', 'LDM', 'CDM', 'RDM', 'LB', 'LCB', 'CB',
+                          'RCB', 'RB', 'GK']
 
     def __init__(self, player_url: str, html: str):
-        # TODO: convert euto to int (6M -> 6 000 000)
-        self.bs: bs4.BeautifulSoup = bs4.BeautifulSoup(html)
+        self.soup: bs4.BeautifulSoup = bs4.BeautifulSoup(html)
 
         player_info = parse_player_url(player_url)
 
-        # info that should be filled when initializing the parser
         self.player_id: int = player_info['player_id']
-        self.player_url: str = player_url[:-1] if player_url[-1] == '/' else player_url  # for consistency with older data
+        # self.player_url: str = player_url[:-1] if player_url[-1] == '/' else player_url  # for consistency with older data
+        self.player_url: str = player_url
         self.fifa_version: int = player_info['fifa_version']
         self.fifa_update: int = player_info['fifa_update']
         self.fifa_update_date: str | None = None
 
         self.player_face_url: str | None = None
-
         self.short_name: str | None = None
         self.long_name: str | None = None
         self.positions: list | None = None
-
-        # age, dob, height_cm, weight_kg
-        self.main_info = dict.fromkeys(['age', 'dob', 'height_cm', 'weight_kg', 'nationality_id', 'nationality_name'], None)
-        self.main_stats = dict.fromkeys(['overall', 'potential', 'value_eur', 'wage_eur'], None)
-
-        self.stat_grids = []
-        self.info_grids = []
-
-        self.position_ratings = {}
-        self.player_specialities = set()
-
-        # dict for storing all the cols of the grids (both stats and info)
-        self._cols = {}
-
-        self.profile_data = dict.fromkeys(
-            ['preferred_foot', 'weak_foot', 'skill_moves', 'international_reputation', 'work_rate', 'body_type', 'real_face', 'release_clause_eur'], None)
-        self.club_data = dict.fromkeys(
-            ["league_id", "league_name", "league_level", "club_team_id", "club_name", "club_position", "club_jersey_number", "club_loaned_from",
-             "club_joined_date", "club_contract_valid_until_year"], None)
-        # TODO: figure out league level
-
-        self.position_ratings = dict.fromkeys(
-            ['LS', 'ST', 'RS', 'LW', 'LF', 'RF', 'RW', 'LAM', 'CAM', 'RAM', 'LM', 'LCM', 'CM', 'RCM', 'RM', 'LDM', 'CDM', 'RDM', 'LB', 'LCB', 'CB', 'RCB', 'RB',
-             'GK'], None
-        )
-
-        # 'nationality_id' and 'nationality_name' are part of main_info
-        self.national_team_data = dict.fromkeys(["nation_team_id", "nation_position", "nation_jersey_number"], None)
-
+        self.main_info = dict.fromkeys(self.INFO_KEYS, None)
+        self.main_stats = dict.fromkeys(self.MARKET_KEYS, None)
+        self.profile_data = dict.fromkeys(self.PROFILE_KEYS, None)
+        self.club_data = dict.fromkeys(self.CLUB_KEYS, None)
+        self.player_specialities = []
+        self.national_team_data = dict.fromkeys(self.NATIONAL_TEAM_KEYS, None)
+        self.position_ratings = dict.fromkeys(self.POSSIBLE_POSITIONS, None)
         self.stats = {}
         self.special_stats = {}
-        self.aggregated_stats = {}
+        self.aggregated_stats = dict.fromkeys(self.AGGREGATE_STATS.values(), None)
+
+        self._grid_divs = {}  # dict for storing all the cols of the grids (both stats and info)
 
     def parse(self):
-        self.short_name = self.bs.header.h1.get_text()
-        self.long_name = self.bs.main.h1.get_text(strip=True)
-        self.positions = [x.get_text() for x in self.bs.article.div.select('.pos')]
+        self.short_name = self.soup.header.h1.get_text()
+        self.long_name = self.soup.main.h1.get_text(strip=True)
+        self.positions = [x.get_text() for x in self.soup.article.div.select('.pos')]
+        self.player_face_url = self.soup.article.find('img').get('data-src')
 
-        fifa_update_date = self.bs.header.find(id='select-roster').get_text(strip=True)
+        fifa_update_date = self.soup.header.find(id='select-roster').get_text(strip=True)
         self.fifa_update_date = convert_date_to_iso(fifa_update_date)
+
+        self.position_ratings.update(self.parse_position_ratings())
+        self.parse_aggregate_stats()
 
         self.parse_main_info()
         self.parse_main_stats()
-        # first we split the main grid into 4 parts (1: info_grid, 2: exists only on FC 25 -> ignore, 3: stat_grid 1, 4: stat_grid 2)
-        self._split_grids()
 
-        self.position_ratings.update(self.parse_position_ratings())
+        # parse the grid
 
-        # dict_keys(['Profile', 'Player specialities', 'Club', 'National team', 'Attacking', 'Skill', 'Movement', 'Power', 'Mentality', 'Defending', 'Goalkeeping', 'PlayStyles'])
+        # first, prepare the divs
+        self._grid_divs = {h.get_text(): x for x in self.soup.article.find_all('div', class_='col') if (h := x.find('h5'))}
 
-        # parse info grid
-        profile = self._cols.get('Profile')
+        # profile
+        profile = self._grid_divs.get('Profile')
         if profile:
             self._parse_profile(profile)
 
-        player_specialities = self._cols.get('Player specialities')
-        self.player_specialities = set(x.get_text() for x in player_specialities.find_all('p'))
+        # player_specialities
+        player_specialities = self._grid_divs.get('Player specialities')
+        self.player_specialities = list(x.get_text() for x in player_specialities.find_all('p'))
 
-        club = self._cols.get('Club')
+        # club
+        club = self._grid_divs.get('Club')
         if club:
             self._parse_club(club)
-        national_team = self._cols.get('National team')
+
+        # national team
+        national_team = self._grid_divs.get('National team')
         if national_team:
             self._parse_national_team(national_team)
 
+        # stats & special stats
         self.parse_stat_grid()
-        self.parse_aggregate_stats()
+        self.parse_special_stat_grid()
 
     def export_player_data(self) -> dict:
         mega_dict = {
@@ -152,9 +146,9 @@ class PlayerParser:
             'fifa_update_date': self.fifa_update_date,
             'short_name': self.short_name,
             'long_name': self.long_name,
-            'positions': self.positions,
+            'player_positions': ', '.join(self.positions),
             'player_face_url': self.player_face_url,
-            'player_tags': list(self.player_specialities),
+            'player_tags': ', '.join(self.player_specialities),
 
         }
 
@@ -166,10 +160,13 @@ class PlayerParser:
         mega_dict.update(self.aggregated_stats)
 
         for key, value in self.stats.items():
-            if key in self.HEADERS_STATS:
-                mega_dict.update({key.lower() + '_' + x['name'].lower().replace(' ', '_'): x['value'] for x in value})
-            elif key in self.HEADERS_SPECIAL_STATS:
-                mega_dict['player_traits'] = ", ".join(value)
+            if key == 'Goalkeeping':
+                mega_dict.update({k.lower().replace(' ', '_').replace('gk_', 'goalkeeping_'): v for k, v in self.stats[key].items()})
+            else:
+                mega_dict.update({key.lower() + '_' + k.lower().replace(' ', '_'): v for k, v in self.stats[key].items()})
+
+        assert len(self.special_stats) == 1
+        mega_dict['player_traits'] = ', '.join(self.special_stats[list(self.special_stats.keys())[0]])
 
         # rename some stats for consistency
         mega_dict["defending_marking_awareness"] = mega_dict.pop("defending_defensive_awareness")
@@ -188,9 +185,7 @@ class PlayerParser:
         WT_RX = re.compile(r"(\d+)\s*kg", re.I)
 
         # Get the block containing age etc.
-        info_block = self.bs.article.p
-
-        self.player_face_url = self.bs.article.find('img').get('data-src')
+        info_block = self.soup.article.p
 
         info_txt = info_block.contents[-1]
         self.main_info['age'] = _safe_int(AGE_RX.search(info_txt))
@@ -207,34 +202,17 @@ class PlayerParser:
 
     def parse_main_stats(self):
         # get overall rating, potential, value, wage (second div, create key value pairs)
-        main_stats_block = self.bs.article.find_all('div')[1]
+        main_stats_block = self.soup.article.find_all('div')[1]
         some_stats = {sub.get_text(): col.get_text() for sub, col in zip(main_stats_block.select('div.sub'), main_stats_block.find_all('em'))}
         self.main_stats['overall'] = some_stats['Overall rating']
         self.main_stats['potential'] = some_stats['Potential']
         self.main_stats['value_eur'] = _eur_to_int(some_stats['Value'])
         self.main_stats['wage_eur'] = _eur_to_int(some_stats['Wage'])
 
-    def _split_grids(self):
-
-        # classify each grid
-        self._cols = {h.get_text(): x for x in self.bs.article.find_all('div', class_='col') if (h := x.find('h5'))}
-
-        for grid in self.bs.find('article').select('div.grid.attribute'):
-            headers = {h.get_text() for h in grid.find_all('h5')}
-
-            if headers & self.HEADERS_INFO:
-                self.info_grids.append(grid)
-            elif headers & self.HEADERS_STATS:
-                self.stat_grids.append(grid)
-            else:
-                continue
-                # e.g., 'Roles' (FC 25)
-                # print(f"Unknown headings: {headers}")
-
     def parse_position_ratings(self) -> dict:
         # assert length is 27
         positions = {}
-        for box in self.bs.find('aside').css.select('div.pos'):
+        for box in self.soup.find('aside').css.select('div.pos'):
             position = box.find(string=True, recursive=False)
             rating = box.find('em').text
             positions[position] = rating
@@ -242,7 +220,7 @@ class PlayerParser:
 
     def parse_aggregate_stats(self):
         # grab the <script> with POINT_*
-        script_tag = self.bs.find('script', string=lambda s: 'POINT_' in s)
+        script_tag = self.soup.find('script', string=lambda s: 'POINT_' in s)
         if not script_tag:
             return
 
@@ -259,29 +237,27 @@ class PlayerParser:
             for k, v in assignments.items()
             if k.startswith('POINT_')
         }
-        self.aggregated_stats = {self.AGGREGATE_STATS[k]: v for k, v in res.items() if k in self.AGGREGATE_STATS.keys()}
+        self.aggregated_stats.update({self.AGGREGATE_STATS[k]: v for k, v in res.items() if k in self.AGGREGATE_STATS.keys()})
         return
 
     def parse_stat_grid(self):
-        for grid in self.stat_grids:
-            self._parse_stat_grid(grid)
-
-    def _parse_stat_grid(self, grid):
-        out = {}
-        for col in grid.find_all('div', recursive=False):
-            header = col.h5.get_text()
+        for header, data in self._grid_divs.items():
             if header in self.HEADERS_STATS:
-                stats = []
-                for p in col.find_all("p", recursive=False):
+                stats = {}
+                for p in data.find_all("p", recursive=False):
                     spans = p.find_all("span")
                     value = int(spans[0].get_text())
                     label = spans[1].get_text()
+                    stats.update({label: value})
+                self.stats[header] = stats
+        return
 
-                    stats.append({"name": label, "value": value})
-                out[header] = stats
-            elif header in self.HEADERS_SPECIAL_STATS:
-                out[header] = set(x.get_text() for x in col.find_all('p'))
-        self.stats.update(out)
+    def parse_special_stat_grid(self):
+        for header in self.HEADERS_SPECIAL_STATS:
+            data = self._grid_divs.get(header)
+            if data:
+                self.special_stats[header] = list(x.get_text() for x in data.find_all('p'))
+        return
 
     def _parse_profile(self, profile):
 
@@ -365,3 +341,7 @@ class PlayerParser:
                 self.national_team_data['nation_jersey_number'] = int(value)
             else:
                 print(key, value)
+
+    def assertion_galore(self):
+        assert set(self.main_info.keys()) == set(self.INFO_KEYS)
+        assert set(self.main_stats.keys()) == set(self.MARKET_KEYS)

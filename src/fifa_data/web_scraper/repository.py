@@ -120,7 +120,7 @@ class SqliteRepository(Repository):
             cursor = conn.cursor()
 
             cursor.execute("""
-                           insert into main.import_player (player_url, player_html)
+                           insert into main.import_player_data (player_url, player_html)
                            values (?, ?)
                            """, (player_url, player_html))
         conn.commit()
@@ -131,7 +131,7 @@ class SqliteRepository(Repository):
             cursor = conn.cursor()
 
             cursor.execute(
-                "select import_player.player_html from main.import_player where import_player.player_url = ?"
+                "select import_player_data.player_html from main.import_player_data where import_player_data.player_url = ?"
                 , (player_url,)
             )
             rows = cursor.fetchall()
@@ -170,6 +170,35 @@ class SqliteRepository(Repository):
         conn.commit()
         conn.close()
         return updated
+
+    def add_processed_player(self, player_data: dict, player_url: str):
+        with sqlite3.connect(f"file:/{self.db_path}", uri=True) as conn:
+            cursor = conn.cursor()
+
+
+            # 1. Insert player_data as a single row
+            columns = ", ".join(player_data.keys())
+            placeholders = ", ".join(["?"] * len(player_data))
+            values = tuple(player_data.values())
+
+            cursor.execute(
+                f"""
+                INSERT INTO main.player_data ({columns})
+                VALUES ({placeholders})
+                """,
+                values
+            )
+
+            # 2. Update status for the given player
+            cursor.execute(
+                """
+                update main.player_url
+                set status = 2
+                where player_url = ?
+                """,
+                (player_url,),
+            )
+            conn.commit()
 
 
 class CsvRepository(Repository):

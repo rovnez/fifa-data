@@ -3,9 +3,10 @@ import time
 from fifa_data.web_scraper.fetcher import CurlFetcher
 from fifa_data.web_scraper.parser import parse_html_urls
 from fifa_data.web_scraper.repository import SqliteRepository
-from fifa_data.web_scraper.parse_player import PlayerParser
+from fifa_data.web_scraper.parse_player import BeautifulSoupPlayerParser
 from fifa_data.web_scraper.utils import create_batch_name, wait_with_progress_bar
 from fifa_data.web_scraper.errors import PageNotFoundError, TooManyRequestsError
+from fifa_data.web_scraper.constants import FIFA_DATA_COLUMNS
 
 from fifa_data.config import DB_PATH_SCRAPER, LOG_FILE_SCRAPER
 
@@ -104,16 +105,32 @@ def scrape_players(limit: int = LIMIT_PLAYERS, batch_name: str = None, save_full
             break
 
 
+def validate_player_data(player_data: dict) -> bool:
+    # Check type
+    if not isinstance(player_data, dict):
+        return False
+
+    print(set(FIFA_DATA_COLUMNS).difference(set(player_data.keys())))
+
+    # Check number of keys
+    if len(player_data) != 107:
+        return False
+
+    return True
+
+
 def parse_players(batch_name: str = None):
     if not batch_name:
         batch_name = create_batch_name()
     repo = SqliteRepository(db_path=DB_PATH_SCRAPER, batch_name=batch_name)
     urls = repo.get_urls_in_core(status=1)
     for url in urls:
+        url = '/player/246669/bukayo-saka/250044/'
         html = repo.get_player_html_from_url(url)
-        player_parser = PlayerParser(url, html)
+        player_parser = BeautifulSoupPlayerParser(url, html)
         player_parser.parse()
         player_data = player_data = player_parser.export_player_data()
+        repo.add_processed_player(player_data, url)
 
 
 # parse_players(batch_name='TEST2')
