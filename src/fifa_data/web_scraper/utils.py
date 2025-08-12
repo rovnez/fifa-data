@@ -23,9 +23,8 @@ def load_html_from_dir(filename: str):
 def load_html_from_web(url): ...
 
 
-def create_batch_name(batch_name: str = None) -> str:
-    if not batch_name:
-        batch_name = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+def create_batch_name() -> str:
+    batch_name = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
     return batch_name
 
 

@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 import re
 import bs4
 
+import datetime
+
 from fifa_data.web_scraper.utils import parse_player_url, convert_date_to_iso
 
 CUR_RX = re.compile(r"€\s*([\d.]+)\s*([MK]?)", re.I)
@@ -66,7 +68,7 @@ class BeautifulSoupPlayerParser:
                           'RCB', 'RB', 'GK']
 
     def __init__(self, player_url: str, html: str):
-        self.soup: bs4.BeautifulSoup = bs4.BeautifulSoup(html)
+        self.soup: bs4.BeautifulSoup = bs4.BeautifulSoup(html, 'lxml')
 
         player_info = parse_player_url(player_url)
 
@@ -165,8 +167,8 @@ class BeautifulSoupPlayerParser:
             else:
                 mega_dict.update({key.lower() + '_' + k.lower().replace(' ', '_'): v for k, v in self.stats[key].items()})
 
-        assert len(self.special_stats) == 1
-        mega_dict['player_traits'] = ', '.join(self.special_stats[list(self.special_stats.keys())[0]])
+        if len(self.special_stats) == 1:
+            mega_dict['player_traits'] = ', '.join(self.special_stats[list(self.special_stats.keys())[0]])
 
         # rename some stats for consistency
         mega_dict["defending_marking_awareness"] = mega_dict.pop("defending_defensive_awareness")
@@ -281,7 +283,8 @@ class BeautifulSoupPlayerParser:
                 value = p.find('label').next_sibling.get_text(" ", strip=True)
                 self.profile_data['release_clause_eur'] = _eur_to_int(value)
             else:
-                print(f"Skipping unrecognized profile key: '{key}'")
+                continue
+                #print(f"Skipping unrecognized profile key: '{key}'")
                 # raise ValueError(f"Unrecognized profile key: '{key}'")
         return
 
@@ -312,14 +315,29 @@ class BeautifulSoupPlayerParser:
                 self.club_data["club_jersey_number"] = value
 
             elif key == 'Contract valid until':
-                value = int(value)
-                self.club_data["club_contract_valid_until_year"] = value
+                self.club_data["club_contract_valid_until_year"] = self._parse_contract_valid_until(value)
 
             elif key == 'Joined':
                 value = convert_date_to_iso(value[1:])
                 self.club_data["club_joined_date"] = value
             else:
                 print(key, value)
+
+    def _parse_contract_valid_until(self, value) -> str:
+        value = value.strip()  # ' Jun 30, 2025' -> 'Jun 30, 2025'
+
+        # Case 1: '2025'
+        if value.isdigit() and len(value) == 4:
+            return value
+
+        # Case 2:  'Jun 30, 2025'
+        try:
+            dt = datetime.datetime.strptime(value, "%b %d, %Y")  # e.g., 'Jun 30, 2025'
+            return str(dt.year)
+        except ValueError:
+            print(value)
+            pass
+        raise ValueError(f"Unrecognized date/year format: {value}")
 
     def _parse_national_team(self, national_team):
         # first <p> with /team/ = national team row

@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from fifa_data.web_scraper.utils import parse_player_url
 import sqlite3
+from fifa_data.config import SCHEMA_PATH
+from pathlib import Path
 
 
 class Repository(ABC):
@@ -29,6 +31,18 @@ class SqliteRepository(Repository):
     def __init__(self, db_path, batch_name):
         super().__init__(batch_name)
         self.db_path: str = db_path
+        self.schema_path = SCHEMA_PATH
+        self._init_db()
+
+    def _get_connection(self):
+        """Default connection — can be overridden in subclasses."""
+        return sqlite3.connect(self.db_path)
+
+    def _init_db(self):
+        with self._get_connection() as conn:
+            with open(self.schema_path, "r", encoding="utf-8") as f:
+                ddl = f.read()
+            conn.executescript(ddl)
 
     def write_urls(self, urls: list, idx_offset: int = 0):
         params = []
@@ -46,7 +60,7 @@ class SqliteRepository(Repository):
                      insert into main.import_player_url (url, batch_name, player_id, fifa_version, fifa_update, idx)
                      values (:url, :batch_name, :player_id, :fifa_version, :fifa_update, :idx) \
                      """
-        with sqlite3.connect(f"file:/{self.db_path}", uri=True) as conn:
+        with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.executemany(insert_sql, params)
             inserted_rows = cursor.rowcount
@@ -56,7 +70,7 @@ class SqliteRepository(Repository):
         raise NotImplementedError
 
     def get_urls_from_in_import(self) -> list:
-        with sqlite3.connect(f"file:/{self.db_path}", uri=True) as conn:
+        with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
                 "select url from main.import_player_url where batch_name = ?",
@@ -76,7 +90,7 @@ class SqliteRepository(Repository):
                     from main.player_url
                     """
             params = ()
-            if status:
+            if status is not None:
                 query += " WHERE status = ?"
                 params = (status,)
             cursor = conn.execute(query, params)
@@ -84,36 +98,33 @@ class SqliteRepository(Repository):
         return urls
 
     def transfer_urls_from_import_to_core(self):
-        with sqlite3.connect(f"file:/{self.db_path}", uri=True) as conn:
+        with self._get_connection() as conn:
             cursor = conn.cursor()
-
-            cursor.execute("""
-                           delete
-                           from main.player_url
-                           where exists ( select 1
-                                          from main.import_player_url ipu
-                                          where ipu.batch_name = ?
-                                            and ipu.player_id = player_url.player_id
-                                            and ipu.fifa_version = player_url.fifa_version
-                                            and ipu.fifa_update = player_url.fifa_update )
-                           """, (self.batch_name,))
-
-            deleted = cursor.rowcount
             cursor.execute("""
                            insert into main.player_url (player_url, player_id, fifa_version, fifa_update, idx)
                            select ipu.url, ipu.player_id, ipu.fifa_version, ipu.fifa_update, ipu.idx
                            from main.import_player_url ipu
                            where ipu.batch_name = ?
+                             and not exists ( select 1 from main.player_url where ipu.url = player_url.player_url )
                              and not exists ( select 1
                                               from main.player_url
-                                              where ipu.player_id = player_url.player_id
+                                              where ipu.player_id = player_url.player_url
                                                 and ipu.fifa_version = player_url.fifa_version
                                                 and ipu.fifa_update = player_url.fifa_update )
                            """, (self.batch_name,))
             inserted = cursor.rowcount
         conn.commit()
         conn.close()
-        return {'deleted': deleted, 'inserted': inserted}
+        return inserted
+
+    def clear_import_table(self) -> int:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("delete from main.import_player_url")
+            deleted = cursor.rowcount
+        conn.commit()
+        conn.close()
+        return deleted
 
     def write_player_html(self, player_url, player_html):
         with sqlite3.connect(f"file:/{self.db_path}", uri=True) as conn:
@@ -123,6 +134,12 @@ class SqliteRepository(Repository):
                            insert into main.import_player_data (player_url, player_html)
                            values (?, ?)
                            """, (player_url, player_html))
+            cursor.execute("""
+                           update main.player_url
+                           set status = 1
+                           where player_url = ?
+                           """
+                           , (player_url,))
         conn.commit()
         conn.close()
 
@@ -141,13 +158,6 @@ class SqliteRepository(Repository):
             print(f"WARNING: {player_url} has multiple HTML entries in database.")
         return rows[0][0]  # double index since we want the first and we are dealing with tuple
 
-    def clear_import_table(self):
-        with sqlite3.connect(f"file:/{self.db_path}", uri=True) as conn:
-            cursor = conn.cursor()
-            cursor.execute("delete from main.import_player_url")
-        conn.commit()
-        conn.close()
-
     def clear_core_table(self):
         with sqlite3.connect(f"file:/{self.db_path}", uri=True) as conn:
             cursor = conn.cursor()
@@ -155,26 +165,24 @@ class SqliteRepository(Repository):
         conn.commit()
         conn.close()
 
-    def update_player_url_status(self, player_url) -> int:
+    def update_player_url_status(self, player_url, to_status: int) -> int:
         with sqlite3.connect(f"file:/{self.db_path}", uri=True) as conn:
             cursor = conn.cursor()
 
-            cursor.execute(
-                """update main.player_url
-                   set status = 1
-                   where player_url = ?
-                """
-                , (player_url,)
-            )
+            cursor.execute("""
+                           update main.player_url
+                           set status = ?
+                           where player_url = ?
+                           """
+                           , (to_status, player_url))
             updated = cursor.rowcount
-        conn.commit()
-        conn.close()
+            conn.commit()
+            conn.close()
         return updated
 
     def add_processed_player(self, player_data: dict, player_url: str):
         with sqlite3.connect(f"file:/{self.db_path}", uri=True) as conn:
             cursor = conn.cursor()
-
 
             # 1. Insert player_data as a single row
             columns = ", ".join(player_data.keys())
@@ -193,7 +201,7 @@ class SqliteRepository(Repository):
             cursor.execute(
                 """
                 update main.player_url
-                set status = 2
+                set status = 1
                 where player_url = ?
                 """,
                 (player_url,),
@@ -201,10 +209,11 @@ class SqliteRepository(Repository):
             conn.commit()
 
 
-class CsvRepository(Repository):
+class InMemorySqliteRepository(SqliteRepository):
 
-    def write_urls(self, urls: list):
-        raise NotImplementedError
+    def __init__(self, batch_name, schema_path=None, db_path: str = None):
+        self._conn = sqlite3.connect(":memory:")
+        super().__init__(db_path=":memory:", batch_name=batch_name, schema_path=schema_path)
 
-    def write_players(self, players):
-        raise NotImplementedError
+    def _get_connection(self):
+        return self._conn
