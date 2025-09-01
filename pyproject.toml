@@ -1,0 +1,8 @@
+[project]
+name = "fifa-data"
+version = "0.1.0"
+description = "FIFA data"
+dependencies = [
+    "beautifulsoup4==4.13.5",
+    "curl-cffi>=0.13.0",
+]
