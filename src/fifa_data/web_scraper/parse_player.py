@@ -68,7 +68,7 @@ class BeautifulSoupPlayerParser:
                           'RCB', 'RB', 'GK']
 
     def __init__(self, player_url: str, html: str):
-        self.soup: bs4.BeautifulSoup = bs4.BeautifulSoup(html, 'lxml')
+        self.soup: bs4.BeautifulSoup = bs4.BeautifulSoup(html, 'html.parser')
 
         player_info = parse_player_url(player_url)
 

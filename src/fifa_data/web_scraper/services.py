@@ -91,7 +91,7 @@ def scrape_players(repo: SqliteRepository, limit: int = LIMIT_PLAYERS):
 def parse_players(repo: SqliteRepository, batch_name: str = None):
     urls = repo.get_urls_in_core(status=1)
     for idx, url in enumerate(urls):
-        print(f"{idx}: {url}")
+        print(f"{idx+1}: {url}")
         html = repo.get_player_html_from_url(url)
         player_parser = BeautifulSoupPlayerParser(url, html)
         player_parser.parse()
@@ -141,6 +141,6 @@ def workflow_players_parsing():
     parse_players(repo)
 
 
-# workflow_urls(base_url='https://sofifa.com/players?type=all&lg%5B0%5D=10&oal=66')
-# workflow_players_fetching()
+workflow_urls(base_url='https://sofifa.com/players?type=all&lg%5B0%5D=10&oal=76')
+workflow_players_fetching()
 workflow_players_parsing()
