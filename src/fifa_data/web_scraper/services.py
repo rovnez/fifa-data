@@ -1,12 +1,12 @@
 from fifa_data.web_scraper.fetcher import CurlFetcher
 from fifa_data.web_scraper.parser import parse_html_urls
-from fifa_data.web_scraper.repository import Repository, SqliteRepository
+from fifa_data.web_scraper.repository import SqliteRepository, InMemorySqliteRepository
 from fifa_data.web_scraper.parse_player import BeautifulSoupPlayerParser
 from fifa_data.web_scraper.utils import create_batch_name, wait_with_progress_bar
 from fifa_data.web_scraper.errors import PageNotFoundError, TooManyRequestsError
 from fifa_data.web_scraper.constants import FIFA_DATA_COLUMNS
 
-from fifa_data.config import DB_PATH_SCRAPER, LOG_FILE_SCRAPER, SCHEMA_PATH, SCRAPER_BASE_URL
+from fifa_data.config import DB_PATH_SCRAPER, LOG_FILE_SCRAPER, SCHEMA_PATH
 
 import logging
 
@@ -89,7 +89,7 @@ def scrape_players(repo: SqliteRepository, limit: int = LIMIT_PLAYERS) -> int:
 def parse_players(repo: SqliteRepository, batch_name: str = None):
     urls = repo.get_urls_in_core(status=1)
     for idx, url in enumerate(urls):
-        print(f"{idx}: {url}")
+        print(f"{idx+1}: {url}")
         html = repo.get_player_html_from_url(url)
         player_parser = BeautifulSoupPlayerParser(url, html)
         player_parser.parse()
@@ -140,6 +140,10 @@ def workflow_players_parsing():
     parse_players(repo)
 
 
-# workflow_urls(SCRAPER_BASE_URL, clear_import_table=False)
-# workflow_players_fetching()
+def save_player_from_cache(player_url: str):
+    batch_name = create_batch_name()
+    repo = InMemorySqliteRepository(db_path=None, batch_name=batch_name)
+
+workflow_urls(base_url='https://sofifa.com/players?type=all&tm%5B%5D=5')
+workflow_players_fetching()
 workflow_players_parsing()

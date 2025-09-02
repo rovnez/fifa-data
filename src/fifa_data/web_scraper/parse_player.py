@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-
+from dataclasses import dataclass
 import re
 import bs4
 
@@ -284,7 +284,7 @@ class BeautifulSoupPlayerParser:
                 self.profile_data['release_clause_eur'] = _eur_to_int(value)
             else:
                 continue
-                #print(f"Skipping unrecognized profile key: '{key}'")
+                # print(f"Skipping unrecognized profile key: '{key}'")
                 # raise ValueError(f"Unrecognized profile key: '{key}'")
         return
 

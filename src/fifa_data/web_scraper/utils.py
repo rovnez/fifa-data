@@ -2,6 +2,7 @@ from pathlib import Path
 import datetime
 import time
 from fifa_data.config import HTML_FILES_DIR
+import csv
 
 
 def load_html():
@@ -26,6 +27,8 @@ def load_html_from_web(url): ...
 def create_batch_name() -> str:
     batch_name = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
     return batch_name
+
+
 
 
 def parse_player_url(player_url: str) -> dict:
@@ -62,3 +65,13 @@ def convert_date_to_iso(date_text: str, date_format="%b %d, %Y") -> str:
 
     """
     return datetime.datetime.strptime(date_text, date_format).date().isoformat()
+
+
+
+def write_to_csv(data: list[dict], file_path: str) -> None:
+    if not data:
+        return
+    with open(file_path, mode="w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=data[0].keys())
+        writer.writeheader()
+        writer.writerows(data)

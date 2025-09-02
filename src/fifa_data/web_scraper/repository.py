@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from fifa_data.web_scraper.utils import parse_player_url
 import sqlite3
 from fifa_data.config import SCHEMA_PATH
-from pathlib import Path
 
 
 class Repository(ABC):
@@ -208,12 +207,37 @@ class SqliteRepository(Repository):
             )
             conn.commit()
 
+    def get_player_data(self, player_id: int | None = None, fifa_version: int | None = None, fifa_update: int | None = None):
+        filters = []
+        params = []
+
+        if player_id is not None:
+            filters.append("player_id = ?")
+            params.append(player_id)
+        if fifa_version is not None:
+            filters.append("fifa_version = ?")
+            params.append(fifa_version)
+        if fifa_update is not None:
+            filters.append("fifa_update = ?")
+            params.append(fifa_update)
+
+        query = "select * from main.player_data"
+        if filters:
+            query += " WHERE " + " AND ".join(filters)
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(query, params)
+            columns = [col[0] for col in cursor.description]
+            data = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        return data
+
 
 class InMemorySqliteRepository(SqliteRepository):
 
-    def __init__(self, batch_name, schema_path=None, db_path: str = None):
+    def __init__(self, batch_name, db_path: str | None = None):
         self._conn = sqlite3.connect(":memory:")
-        super().__init__(db_path=":memory:", batch_name=batch_name, schema_path=schema_path)
+        super().__init__(db_path=":memory:", batch_name=batch_name)
 
     def _get_connection(self):
         return self._conn
