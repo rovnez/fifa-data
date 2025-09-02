@@ -127,7 +127,7 @@ class SqliteRepository(Repository):
         return deleted
 
     def write_player_html(self, player_url, player_html):
-        with sqlite3.connect(f"file:/{self.db_path}", uri=True) as conn:
+        with self._get_connection() as conn:
             cursor = conn.cursor()
 
             cursor.execute("""
@@ -144,7 +144,7 @@ class SqliteRepository(Repository):
         conn.close()
 
     def get_player_html_from_url(self, player_url):
-        with sqlite3.connect(f"file:/{self.db_path}", uri=True) as conn:
+        with self._get_connection() as conn:
             cursor = conn.cursor()
 
             cursor.execute(
@@ -159,14 +159,14 @@ class SqliteRepository(Repository):
         return rows[0][0]  # double index since we want the first and we are dealing with tuple
 
     def clear_core_table(self):
-        with sqlite3.connect(f"file:/{self.db_path}", uri=True) as conn:
+        with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("delete from main.player_url")
         conn.commit()
         conn.close()
 
     def update_player_url_status(self, player_url, to_status: int) -> int:
-        with sqlite3.connect(f"file:/{self.db_path}", uri=True) as conn:
+        with self._get_connection() as conn:
             cursor = conn.cursor()
 
             cursor.execute("""
@@ -181,7 +181,7 @@ class SqliteRepository(Repository):
         return updated
 
     def add_processed_player(self, player_data: dict, player_url: str):
-        with sqlite3.connect(f"file:/{self.db_path}", uri=True) as conn:
+        with self._get_connection() as conn:
             cursor = conn.cursor()
 
             # 1. Insert player_data as a single row
@@ -201,7 +201,7 @@ class SqliteRepository(Repository):
             cursor.execute(
                 """
                 update main.player_url
-                set status = 1
+                set status = -1
                 where player_url = ?
                 """,
                 (player_url,),

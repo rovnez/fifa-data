@@ -6,7 +6,7 @@ from fifa_data.web_scraper.utils import create_batch_name, wait_with_progress_ba
 from fifa_data.web_scraper.errors import PageNotFoundError, TooManyRequestsError
 from fifa_data.web_scraper.constants import FIFA_DATA_COLUMNS
 
-from fifa_data.config import DB_PATH_SCRAPER, LOG_FILE_SCRAPER, SCHEMA_PATH
+from fifa_data.config import DB_PATH_SCRAPER, LOG_FILE_SCRAPER, SCHEMA_PATH, SCRAPER_BASE_URL
 
 import logging
 
@@ -21,23 +21,18 @@ logging.basicConfig(
 )
 
 URL_BASE = "https://sofifa.com"
-URL_EXT_PLAYER_LIST = "/players?col=tt&sort=desc"
 URL_EXT_PLAYER_LIST_OFFSET = "&offset="
-# URL_EXT_PLAYER_LIST = "/players?type=all&lg%5B0%5D=10&oal=70&offset="
-LIMIT_URLS = 50
-LIMIT_PLAYERS = 25
+LIMIT_URLS = 10
+LIMIT_PLAYERS = 10000
 
 
-def scrape_urls(data_writer: SqliteRepository, base_url: str = None, limit: int = LIMIT_URLS):
+def scrape_and_parse_urls(data_writer: SqliteRepository, base_url: str, limit: int = LIMIT_URLS):
     total_batch_size = 0
 
     for i in range(limit):
         logging.info(f"Running iteration {i + 1}... (batch: {data_writer.batch_name})")
 
-        if not base_url:
-            url = URL_BASE + URL_EXT_PLAYER_LIST + URL_EXT_PLAYER_LIST_OFFSET + str(total_batch_size)
-        else:
-            url = base_url + URL_EXT_PLAYER_LIST_OFFSET + str(total_batch_size)
+        url = base_url + URL_EXT_PLAYER_LIST_OFFSET + str(total_batch_size)
 
         fetcher = CurlFetcher()
 
@@ -61,12 +56,13 @@ def scrape_urls(data_writer: SqliteRepository, base_url: str = None, limit: int 
     return total_batch_size
 
 
-def scrape_players(repo: SqliteRepository, limit: int = LIMIT_PLAYERS):
+def scrape_players(repo: SqliteRepository, limit: int = LIMIT_PLAYERS) -> int:
     urls = repo.get_urls_in_core(status=0)
-    for i, url in enumerate(urls):
+    i = 0
+    for url in urls:
 
         if i >= limit:
-            return
+            return i
         logging.info(f"Scraping #{i + 1} {url} (batch: {repo.batch_name})")
 
         full_url = URL_BASE + url
@@ -83,9 +79,11 @@ def scrape_players(repo: SqliteRepository, limit: int = LIMIT_PLAYERS):
             break
         try:
             repo.write_player_html(url, player_html)
+            i += 1
         except Exception as e:
             logging.error(f"Processing finishing html for player {url}: {e}")
             break
+    return i
 
 
 def parse_players(repo: SqliteRepository, batch_name: str = None):
@@ -113,11 +111,11 @@ def validate_player_data(player_data: dict) -> bool:
     return True
 
 
-def workflow_urls(base_url: str = None):
+def workflow_urls(base_url: str = None, clear_import_table: bool = True):
     batch_name = create_batch_name()
     repo = SqliteRepository(db_path=DB_PATH_SCRAPER, batch_name=batch_name)
 
-    scrape_urls(data_writer=repo, base_url=base_url)
+    scrape_and_parse_urls(data_writer=repo, base_url=base_url)
 
     try:
         inserted = repo.transfer_urls_from_import_to_core()
@@ -126,7 +124,8 @@ def workflow_urls(base_url: str = None):
         return
     else:
         logging.info(f"Successfully inserted {inserted} new URLs for batch '{batch_name}'.")
-        repo.clear_import_table()
+        if clear_import_table:
+            repo.clear_import_table()
 
 
 def workflow_players_fetching():
@@ -141,6 +140,6 @@ def workflow_players_parsing():
     parse_players(repo)
 
 
-# workflow_urls(base_url='https://sofifa.com/players?type=all&lg%5B0%5D=10&oal=66')
+# workflow_urls(SCRAPER_BASE_URL, clear_import_table=False)
 # workflow_players_fetching()
 workflow_players_parsing()
