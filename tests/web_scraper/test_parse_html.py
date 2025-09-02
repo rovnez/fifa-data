@@ -26,10 +26,9 @@ def test_e2e_player_urls():
     urls = data_writer.get_urls_from_in_import()
     url = urls[0]
     base = 'https://sofifa.com/'
-    html_str = fetcher.get_page_content(base + url)
+    html = fetcher.get_page_content(base + url)
 
-    bs = BeautifulSoup(html_str, 'html.parser')
-    player_parser = BeautifulSoupPlayerParser(bs)
+    player_parser = BeautifulSoupPlayerParser(html)
     player_parser.parse()
 
 
@@ -68,4 +67,4 @@ def test_parse_player():
     player_parser.parse()
 
 
-test_parse_player()
+test_e2e_player_urls()
